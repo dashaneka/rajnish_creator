@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rajnish Creator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Lato:wght@400;700&family=Montserrat:wght@400;700&family=Oswald:wght@400;700&family=Roboto:wght@400;700&family=Barlow:wght@400;700&family=Bricolage+Grotesque:wght@400;700&family=DM+Sans:wght@400;700&family=Lora:wght@400;700&family=Nunito:wght@400;700&family=Poppins:wght@400;700&family=Saira:wght@400;700&family=Ubuntu:wght@400;700&family=Space+Grotesk:wght@400;700&family=Lilita+One&family=Shadows+Into+Light&family=Indie+Flower&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overscroll-behavior: none;
+        }
+        .file-input-button {
+            cursor: pointer;
+            padding: 0.75rem 1.5rem;
+            background-color: #4f46e5;
+            color: white;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s;
+            font-weight: 600;
+        }
+        .file-input-button:hover {
+            background-color: #4338ca;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .control-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #4b5563;
+            border-radius: 0.375rem;
+            background-color: #374151;
+            transition: background-color 0.2s, color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .control-btn.active {
+            background-color: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+        }
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%239CA3AF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22/%3E%3C/svg%3E');
+            background-repeat: no-repeat;
+            background-position: right 0.7rem top 50%;
+            background-size: .65rem auto;
+        }
+        #canvas-preview-wrapper {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #canvas {
+             max-width: 100%;
+             max-height: 100%;
+             height: auto;
+             width: auto;
+        }
+        /* accordion styles */
+        details > summary {
+            list-style: none;
+            padding: 1rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        details > summary::-webkit-details-marker { display: none; }
+        details > summary::after {
+            content: '+';
+            font-size: 1.5rem;
+            transition: transform 0.2s ease-in-out;
+        }
+        details[open] > summary::after {
+            transform: rotate(45deg);
+        }
+        details > .accordion-body {
+            padding: 1rem;
+            border: 1px solid #374151;
+            border-top: none;
+            border-radius: 0 0 0.5rem 0.5rem;
+        }
+        /* override browser autofill styles */
+        textarea:-webkit-autofill,
+        textarea:-webkit-autofill:hover, 
+        textarea:-webkit-autofill:focus, 
+        textarea:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px #374151 inset !important; /* bg-gray-700 */
+            -webkit-text-fill-color: #E5E7EB !important; /* text-gray-200 */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 flex flex-col items-center justify-center min-h-screen p-2 sm:p-4">
+
+    <div id="loader" class="fixed inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center z-50">
+        <div class="text-center">
+            <svg class="animate-spin h-10 w-10 text-white mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="text-lg font-semibold">loading assets...</p>
+        </div>
+    </div>
+
+    <div class="w-full max-w-7xl mx-auto flex flex-col lg:flex-row gap-4 lg:gap-8">
+        
+        <!-- controls -->
+        <div class="lg:w-2/5 xl:w-1/3 w-full bg-gray-800 p-4 sm:p-6 rounded-2xl shadow-lg flex flex-col gap-4">
+            <div class="text-center">
+                <h1 class="text-2xl sm:text-3xl font-bold mb-1">rajnish creator</h1>
+                <p class="text-sm sm:text-base text-gray-400">design your own quote images.</p>
+            </div>
+            
+            <div class="space-y-4 overflow-y-auto pr-2" style="max-height: calc(90vh - 150px);">
+                <!-- image upload -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-2 block">1. upload image</h3>
+                    <label class="file-input-button text-center block">
+                        <span>choose a file</span>
+                        <input id="image-upload" type="file" accept="image/*">
+                    </label>
+                    <p id="file-name" class="text-sm text-gray-500 mt-2 text-center truncate">no file chosen</p>
+                </div>
+
+                <!-- text input -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-2 block">2. add text</h3>
+                    <textarea id="quote-text" rows="3" class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" placeholder="type your quote here..."></textarea>
+                </div>
+                
+                <h3 class="text-lg font-semibold pt-2 text-center">3. customize your design</h3>
+                
+                <!-- customization accordions -->
+                <div class="space-y-3">
+                    <details class="accordion-item" open>
+                        <summary>layout & size</summary>
+                        <div class="accordion-body space-y-4">
+                             <div id="canvas-size-group" class="grid grid-cols-4 gap-2">
+                               <button class="control-btn active" data-width="1080" data-height="1080">1:1</button>
+                               <button class="control-btn" data-width="1080" data-height="1920">9:16</button>
+                               <button class="control-btn" data-width="1920" data-height="1080">16:9</button>
+                               <button id="custom-size-btn" class="control-btn" data-is-custom="true">custom</button>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 pt-2">
+                                <div>
+                                    <label for="custom-width" class="font-medium block mb-1 text-sm">width (px)</label>
+                                    <input id="custom-width" type="number" value="1080" min="100" max="4000" class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg p-2 text-center">
+                                </div>
+                                <div>
+                                    <label for="custom-height" class="font-medium block mb-1 text-sm">height (px)</label>
+                                    <input id="custom-height" type="number" value="1080" min="100" max="4000" class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg p-2 text-center">
+                                </div>
+                            </div>
+                            <div id="layout-template-group" class="grid grid-cols-2 gap-2 pt-2">
+                               <button class="control-btn active" data-layout="standard">standard</button>
+                               <button class="control-btn" data-layout="background">background</button>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <label for="bg-color" class="font-medium">background</label>
+                                <input id="bg-color" type="color" value="#000000" class="w-10 h-10 bg-transparent rounded cursor-pointer border-2 border-gray-600">
+                            </div>
+                        </div>
+                    </details>
+                    
+                    <details class="accordion-item">
+                        <summary>image effects</summary>
+                         <div class="accordion-body space-y-4">
+                            <div>
+                                <label class="font-medium block mb-2">alignment</label>
+                                <div id="image-align-group" class="grid grid-cols-3 gap-2">
+                                   <button class="control-btn" data-align="left" title="align left"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="21" y1="18" x2="3" y2="18"></line></svg></svg></button>
+                                   <button class="control-btn active" data-align="center" title="align center"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="10" x2="6" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="18" y1="18" x2="6" y2="18"></line></svg></button>
+                                   <button class="control-btn" data-align="right" title="align right"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="21" y1="18" x2="3" y2="18"></line></svg></button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="font-medium block mb-2">shape</label>
+                                <div id="image-shape-group" class="grid grid-cols-3 gap-2">
+                                   <button class="control-btn active" data-shape="rectangle">rectangle</button>
+                                   <button class="control-btn" data-shape="square">square</button>
+                                   <button class="control-btn" data-shape="circle">circle</button>
+                                </div>
+                            </div>
+                             <div>
+                                <label class="font-medium block mb-2">shape size</label>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="image-width" class="font-medium block mb-1 text-sm">width (%)</label>
+                                        <input id="image-width" type="range" min="20" max="100" value="80" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                                    </div>
+                                    <div>
+                                        <label for="image-height" class="font-medium block mb-1 text-sm">height (%)</label>
+                                        <input id="image-height" type="range" min="20" max="80" value="50" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="image-spacing-control">
+                                <label for="image-spacing" class="font-medium block mb-1">vertical position</label>
+                                <input id="image-spacing" type="range" min="5" max="50" value="15" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                            <div id="radius-control">
+                                <label for="corner-radius" class="font-medium block mb-1">corner radius</label>
+                                <input id="corner-radius" type="range" min="0" max="200" value="20" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                             <div>
+                                <label for="image-blur" class="font-medium block mb-1">blur</label>
+                                <input id="image-blur" type="range" min="0" max="20" value="0" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                            <div>
+                                <label for="image-filter" class="font-medium block mb-1">filter</label>
+                                <select id="image-filter" class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500">
+                                    <option value="none">none</option>
+                                    <option value="grayscale(100%)">grayscale</option>
+                                    <option value="sepia(100%)">sepia</option>
+                                    <option value="invert(100%)">invert</option>
+                                    <option value="saturate(2)">saturate</option>
+                                </select>
+                            </div>
+                            <div class="space-y-2 pt-4 mt-4 border-t border-gray-600">
+                                <label class="font-medium block">image crop</label>
+                                <div id="crop-mode-group" class="grid grid-cols-2 gap-2">
+                                   <button class="control-btn active" data-mode="auto">auto fit</button>
+                                   <button class="control-btn" data-mode="manual">manual crop</button>
+                                </div>
+                                <div id="manual-crop-controls" class="hidden space-y-4 pt-2">
+                                     <div>
+                                        <label for="crop-zoom" class="font-medium block mb-1 text-sm">zoom</label>
+                                        <input id="crop-zoom" type="range" min="1" max="5" value="1" step="0.1" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label for="crop-x" class="font-medium block mb-1 text-sm">pan horizontal</label>
+                                            <input id="crop-x" type="range" min="0" max="100" value="50" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                                        </div>
+                                        <div>
+                                            <label for="crop-y" class="font-medium block mb-1 text-sm">pan vertical</label>
+                                            <input id="crop-y" type="range" min="0" max="100" value="50" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                    
+                    <details class="accordion-item">
+                        <summary>text effects</summary>
+                        <div class="accordion-body space-y-4">
+                            <div>
+                                <label for="font-family" class="font-medium block mb-1">font family</label>
+                                <select id="font-family" class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500">
+                                    <option style="font-family: 'Inter', sans-serif;">Inter</option>
+                                    <option style="font-family: 'Poppins', sans-serif;">Poppins</option>
+                                    <option style="font-family: 'Nunito', sans-serif;">Nunito</option>
+                                    <option style="font-family: 'Ubuntu', sans-serif;">Ubuntu</option>
+                                    <option style="font-family: 'DM Sans', sans-serif;">DM Sans</option>
+                                    <option style="font-family: 'Lora', serif;">Lora</option>
+                                    <option style="font-family: 'Barlow', sans-serif;">Barlow</option>
+                                    <option style="font-family: 'Saira', sans-serif;">Saira</option>
+                                    <option style="font-family: 'Bricolage Grotesque', sans-serif;" selected>Bricolage Grotesque</option>
+                                    <option style="font-family: 'Space Grotesk', sans-serif;">Space Grotesk</option>
+                                    <option style="font-family: 'Lilita One', cursive;">Lilita One</option>
+                                    <option style="font-family: 'Shadows Into Light', cursive;">Shadows Into Light</option>
+                                    <option style="font-family: 'Indie Flower', cursive;">Indie Flower</option>
+                                    <option style="font-family: 'Montserrat', sans-serif;">Montserrat</option>
+                                    <option style="font-family: 'Lato', sans-serif;">Lato</option>
+                                    <option style="font-family: 'Roboto', sans-serif;">Roboto</option>
+                                    <option style="font-family: 'Oswald', sans-serif;">Oswald</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                   <label for="font-color" class="font-medium block mb-1">color</label>
+                                   <input id="font-color" type="color" value="#E5E7EB" class="w-full h-10 bg-transparent rounded cursor-pointer border-2 border-gray-600">
+                                </div>
+                                <div>
+                                   <label for="font-size" class="font-medium block mb-1">size</label>
+                                   <input id="font-size" type="number" value="50" min="10" class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg p-2 text-center">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="text-spacing" class="font-medium block mb-1">vertical position</label>
+                                <input id="text-spacing" type="range" min="10" max="90" value="70" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                            <div>
+                                <label for="line-spacing" class="font-medium block mb-1">line spacing</label>
+                                <input id="line-spacing" type="range" min="0.8" max="3" value="1.4" step="0.1" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                             <div>
+                                <label class="font-medium block mb-2">alignment</label>
+                                <div id="text-align-group" class="grid grid-cols-3 gap-2">
+                                   <button class="control-btn" data-align="left" title="align left"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="14" y1="14" x2="3" y2="14"></line><line x1="14" y1="18" x2="3" y2="18"></line></svg></button>
+                                   <button class="control-btn active" data-align="center" title="align center"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="10" x2="6" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="18" y1="14" x2="6" y2="14"></line><line x1="21" y1="18" x2="3" y2="18"></line></svg></button>
+                                   <button class="control-btn" data-align="right" title="align right"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="10" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="21" y1="18" x2="10" y2="18"></line></svg></button>
+                                </div>
+                            </div>
+                            <div class="space-y-2 pt-2">
+                                <div class="flex items-center">
+                                   <input id="text-outline-enable" type="checkbox" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-indigo-600 focus:ring-indigo-500">
+                                   <label for="text-outline-enable" class="ml-2 font-medium">text outline</label>
+                                </div>
+                                <div id="text-outline-controls" class="hidden grid grid-cols-2 gap-4">
+                                   <div>
+                                      <label for="text-outline-color" class="font-medium block mb-1">color</label>
+                                      <input id="text-outline-color" type="color" value="#000000" class="w-full h-10 bg-transparent rounded cursor-pointer border-2 border-gray-600">
+                                   </div>
+                                   <div>
+                                      <label for="text-outline-width" class="font-medium block mb-1">width</label>
+                                      <input id="text-outline-width" type="number" value="2" min="1" class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg p-2 text-center">
+                                   </div>
+                                </div>
+                            </div>
+                            <div class="space-y-2 pt-4 mt-4 border-t border-gray-600">
+                                <div class="flex items-center justify-between">
+                                    <label class="font-medium">accent color</label>
+                                    <input id="accent-color" type="color" value="#4f46e5" class="w-10 h-10 bg-transparent rounded cursor-pointer border-2 border-gray-600">
+                                </div>
+                                <div>
+                                    <label for="accent-words" class="font-medium block mb-1 text-sm">accent words</label>
+                                    <input id="accent-words" type="text" placeholder="love, prayer, special..." class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg p-2 text-sm" />
+                                    <p class="text-xs text-gray-500 mt-1">words to colorize, separated by a comma.</p>
+                                </div>
+                            </div>
+                             <div class="space-y-2 pt-4 mt-4 border-t border-gray-600">
+                                <div class="flex items-center justify-between">
+                                    <label class="font-medium">text highlight</label>
+                                    <input id="highlight-color" type="color" value="#FFFF00" class="w-10 h-10 bg-transparent rounded cursor-pointer border-2 border-gray-600">
+                                </div>
+                                <div>
+                                    <label for="highlight-words" class="font-medium block mb-1 text-sm">highlight words</label>
+                                    <input id="highlight-words" type="text" placeholder="important, notice..." class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg p-2 text-sm" />
+                                    <p class="text-xs text-gray-500 mt-1">words to highlight, separated by a comma.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- download button -->
+            <button id="download-btn" class="w-full mt-auto bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 disabled:bg-gray-600 disabled:cursor-not-allowed disabled:transform-none">
+                download image
+            </button>
+        </div>
+
+        <!-- canvas preview -->
+        <div class="lg:w-3/5 xl:w-2/3 w-full flex items-center justify-center bg-gray-800 p-2 sm:p-4 rounded-2xl min-h-[50vh] lg:min-h-0">
+            <div id="canvas-preview-wrapper">
+                <canvas id="canvas" class="rounded-lg shadow-2xl"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const imageUpload = document.getElementById('image-upload');
+        const quoteText = document.getElementById('quote-text');
+        const downloadBtn = document.getElementById('download-btn');
+        const canvas = document.getElementById('canvas');
+        const canvasPreviewWrapper = document.getElementById('canvas-preview-wrapper');
+        const ctx = canvas.getContext('2d');
+        const fileNameLabel = document.getElementById('file-name');
+        const loader = document.getElementById('loader');
+        
+        // controls
+        const bgColorPicker = document.getElementById('bg-color');
+        const canvasSizeGroup = document.getElementById('canvas-size-group');
+        const customWidthInput = document.getElementById('custom-width');
+        const customHeightInput = document.getElementById('custom-height');
+        const layoutTemplateGroup = document.getElementById('layout-template-group');
+        const textAlignGroup = document.getElementById('text-align-group');
+        const imageAlignGroup = document.getElementById('image-align-group');
+        const imageShapeGroup = document.getElementById('image-shape-group');
+        const radiusControl = document.getElementById('radius-control');
+        const imageSpacingControl = document.getElementById('image-spacing-control');
+        const cornerRadiusSlider = document.getElementById('corner-radius');
+        const imageSpacingSlider = document.getElementById('image-spacing');
+        const imageWidthSlider = document.getElementById('image-width');
+        const imageHeightSlider = document.getElementById('image-height');
+        const imageBlurSlider = document.getElementById('image-blur');
+        const imageFilterSelect = document.getElementById('image-filter');
+        const cropModeGroup = document.getElementById('crop-mode-group');
+        const manualCropControls = document.getElementById('manual-crop-controls');
+        const cropZoomSlider = document.getElementById('crop-zoom');
+        const cropXSlider = document.getElementById('crop-x');
+        const cropYSlider = document.getElementById('crop-y');
+        const fontFamilySelect = document.getElementById('font-family');
+        const fontColorPicker = document.getElementById('font-color');
+        const fontSizeInput = document.getElementById('font-size');
+        const textSpacingSlider = document.getElementById('text-spacing');
+        const lineSpacingSlider = document.getElementById('line-spacing');
+        const textOutlineEnable = document.getElementById('text-outline-enable');
+        const textOutlineControls = document.getElementById('text-outline-controls');
+        const textOutlineColor = document.getElementById('text-outline-color');
+        const textOutlineWidth = document.getElementById('text-outline-width');
+        const accentColorPicker = document.getElementById('accent-color');
+        const accentWordsInput = document.getElementById('accent-words');
+        const highlightColorPicker = document.getElementById('highlight-color');
+        const highlightWordsInput = document.getElementById('highlight-words');
+
+        // state
+        let userImage = null;
+        let text = 'in love, just like prayer you do not look around!';
+        let backgroundColor = '#000000';
+        let canvasWidth = 1080;
+        let canvasHeight = 1080;
+        let layout = 'standard'; // 'standard' or 'background'
+        let textAlign = 'center';
+        let imageAlign = 'center';
+        let imageShape = 'rectangle';
+        let cornerRadius = 20;
+        let imageSpacing = 15; // percentage from top
+        let imageWidthPercent = 80;
+        let imageHeightPercent = 50;
+        let imageBlur = 0;
+        let imageFilter = 'none';
+        let cropMode = 'auto';
+        let cropZoom = 1;
+        let cropX = 50;
+        let cropY = 50;
+        let fontFamily = 'Bricolage Grotesque';
+        let fontColor = '#E5E7EB';
+        let fontSize = 50;
+        let textSpacing = 70; // percentage from top
+        let lineSpacing = 1.4;
+        let textOutline = { enabled: false, color: '#000000', width: 2 };
+        let accentColor = '#4f46e5';
+        let accentWords = [];
+        let highlightColor = '#FFFF00';
+        let highlightWords = [];
+
+        function updateCanvasSize(width, height) {
+            canvasWidth = parseInt(width);
+            canvasHeight = parseInt(height);
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+            canvasPreviewWrapper.style.aspectRatio = canvasWidth / canvasHeight;
+            drawCanvas();
+        }
+
+        function drawCanvas() {
+            if (!ctx) return;
+            
+            ctx.fillStyle = backgroundColor;
+            ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+            if (userImage && userImage.complete) {
+                ctx.save();
+                ctx.filter = `blur(${imageBlur}px) ${imageFilter}`;
+
+                if (layout === 'background') {
+                    const canvasAspect = canvasWidth / canvasHeight;
+                    const imageAspect = userImage.width / userImage.height;
+                    let sx, sy, sWidth, sHeight;
+
+                    if (cropMode === 'manual') {
+                        let potentialSWidth, potentialSHeight;
+                        if (imageAspect > canvasAspect) {
+                            potentialSHeight = userImage.height;
+                            potentialSWidth = potentialSHeight * canvasAspect;
+                        } else {
+                            potentialSWidth = userImage.width;
+                            potentialSHeight = potentialSWidth / canvasAspect;
+                        }
+                        sWidth = potentialSWidth / cropZoom;
+                        sHeight = potentialSHeight / cropZoom;
+                        const maxX = userImage.width - sWidth;
+                        const maxY = userImage.height - sHeight;
+                        sx = maxX * (cropX / 100);
+                        sy = maxY * (cropY / 100);
+                    } else { // auto mode
+                        if (imageAspect > canvasAspect) {
+                            sHeight = userImage.height; sWidth = sHeight * canvasAspect; sx = (userImage.width - sWidth) / 2; sy = 0;
+                        } else {
+                            sWidth = userImage.width; sHeight = sWidth / canvasAspect; sx = 0; sy = (userImage.height - sHeight) / 2;
+                        }
+                    }
+                    ctx.drawImage(userImage, sx, sy, sWidth, sHeight, 0, 0, canvasWidth, canvasHeight);
+                } else {
+                    let drawWidth = canvasWidth * (imageWidthPercent / 100);
+                    let drawHeight = canvasHeight * (imageHeightPercent / 100);
+                    
+                    if (imageShape === 'square' || imageShape === 'circle') {
+                        drawHeight = drawWidth;
+                    }
+
+                    const margin = canvasWidth * 0.1;
+                    let x;
+                    if (imageAlign === 'left') x = margin;
+                    else if (imageAlign === 'right') x = canvasWidth - drawWidth - margin;
+                    else x = (canvasWidth - drawWidth) / 2;
+                    
+                    const y = canvasHeight * (imageSpacing / 100);
+                    
+                    ctx.beginPath();
+                    if (imageShape === 'circle') {
+                        ctx.arc(x + drawWidth / 2, y + drawHeight / 2, drawWidth / 2, 0, Math.PI * 2, true);
+                    } else {
+                        const r = Math.min(cornerRadius, drawWidth / 2, drawHeight / 2);
+                        ctx.moveTo(x + r, y);
+                        ctx.lineTo(x + drawWidth - r, y); ctx.quadraticCurveTo(x + drawWidth, y, x + drawWidth, y + r);
+                        ctx.lineTo(x + drawWidth, y + drawHeight - r); ctx.quadraticCurveTo(x + drawWidth, y + drawHeight, x + drawWidth - r, y + drawHeight);
+                        ctx.lineTo(x + r, y + drawHeight); ctx.quadraticCurveTo(x, y + drawHeight, x, y + drawHeight - r);
+                        ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y);
+                    }
+                    ctx.closePath();
+                    ctx.clip();
+                    
+                    let sx = 0, sy = 0, sWidth = userImage.width, sHeight = userImage.height;
+                    const destAspect = drawWidth / drawHeight;
+                    const srcAspect = userImage.width / userImage.height;
+
+                    if (cropMode === 'auto') {
+                        if (srcAspect > destAspect) {
+                            sHeight = userImage.height; sWidth = sHeight * destAspect; sx = (userImage.width - sWidth) / 2; sy = 0;
+                        } else {
+                            sWidth = userImage.width; sHeight = sWidth / destAspect; sx = 0; sy = (userImage.height - sHeight) / 2;
+                        }
+                    } else {
+                        // determine the largest possible source rectangle that fits the destination aspect ratio
+                        if (srcAspect > destAspect) {
+                            sHeight = userImage.height;
+                            sWidth = sHeight * destAspect;
+                        } else {
+                            sWidth = userImage.width;
+                            sHeight = sWidth / destAspect;
+                        }
+                        
+                        // apply zoom to this correctly-proportioned rectangle
+                        sWidth /= cropZoom;
+                        sHeight /= cropZoom;
+                        
+                        // calculate pan based on the remaining space
+                        const maxX = userImage.width - sWidth;
+                        const maxY = userImage.height - sHeight;
+                        
+                        sx = maxX * (cropX / 100);
+                        sy = maxY * (cropY / 100);
+                    }
+                    ctx.drawImage(userImage, sx, sy, sWidth, sHeight, x, y, drawWidth, drawHeight);
+                }
+                ctx.restore();
+            } else if (layout === 'standard') {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.font = `30px 'Inter'`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('upload an image to see it here', canvasWidth / 2, canvasHeight / 2.5);
+            }
+
+            // Draw text
+            ctx.font = `${fontSize}px '${fontFamily}'`;
+            ctx.textBaseline = 'top';
+            const textY = canvasHeight * (textSpacing / 100);
+            const lineHeight = fontSize * lineSpacing;
+            const maxWidth = canvasWidth * 0.8;
+            const margin = canvasWidth * 0.1;
+            let textX;
+            if (textAlign === 'left') textX = margin;
+            else if (textAlign === 'right') textX = canvasWidth - margin;
+            else textX = canvasWidth / 2;
+            
+            wrapText(text, textX, textY, maxWidth, lineHeight);
+        }
+        
+        function wrapText(text, x, y, maxWidth, lineHeight) {
+            const originalTextAlign = ctx.textAlign;
+            ctx.textAlign = 'left'; // Set to left for manual word positioning
+
+            const lines = text.split('\n');
+            let currentY = y;
+            const accentWordsSet = new Set(accentWords.map(w => w.trim().toLowerCase()).filter(Boolean));
+            const highlightWordsSet = new Set(highlightWords.map(w => w.trim().toLowerCase()).filter(Boolean));
+
+            // Pre-process text to wrap long lines
+            const processedLines = [];
+            for (const singleLine of lines) {
+                let lineBuffer = '';
+                const words = singleLine.split(' ');
+                if (words.length === 0 || (words.length === 1 && words[0] === '')) {
+                    processedLines.push('');
+                    continue;
+                }
+                for (let i = 0; i < words.length; i++) {
+                    const word = words[i];
+                    const testLine = lineBuffer + word + ' ';
+                    if (ctx.measureText(testLine).width > maxWidth && i > 0) {
+                        processedLines.push(lineBuffer.trim());
+                        lineBuffer = word + ' ';
+                    } else {
+                        lineBuffer = testLine;
+                    }
+                }
+                processedLines.push(lineBuffer.trim());
+            }
+
+            // Render each processed line
+            for (const line of processedLines) {
+                if (!line) { 
+                    currentY += lineHeight; 
+                    continue; 
+                }
+                
+                const totalLineWidth = ctx.measureText(line).width;
+                const spaceWidth = ctx.measureText(' ').width;
+                
+                let startX;
+                if (originalTextAlign === 'left') startX = x;
+                else if (originalTextAlign === 'right') startX = x - totalLineWidth;
+                else startX = x - totalLineWidth / 2;
+                
+                // --- PASS 1: Draw Highlights ---
+                let currentXForHighlight = startX;
+                for (const word of line.split(' ')) {
+                    const cleanWord = word.replace(/[.,!?"']/g, '').toLowerCase();
+                    if (highlightWordsSet.has(cleanWord)) {
+                        const metrics = ctx.measureText(word);
+                        const wordWidth = metrics.width;
+                        
+                        // A clean, simple rectangle highlight
+                        const highlightHeight = fontSize * 0.9;
+                        const highlightPadding = fontSize * 0.2;
+
+                        const rectX = currentXForHighlight - (highlightPadding / 2);
+                        const rectY = currentY + (fontSize - highlightHeight) / 2.5; // Adjusted for better vertical centering
+                        const rectWidth = wordWidth + highlightPadding;
+
+                        ctx.fillStyle = highlightColor;
+                        ctx.globalAlpha = 0.6; // A subtle transparency
+                        ctx.fillRect(rectX, rectY, rectWidth, highlightHeight);
+                        ctx.globalAlpha = 1.0; // Reset for other elements
+                    }
+                    currentXForHighlight += ctx.measureText(word).width + spaceWidth;
+                }
+
+                // --- PASS 2: Draw Text (on top of highlights) ---
+                let currentXForText = startX;
+                for (const word of line.split(' ')) {
+                    const cleanWord = word.replace(/[.,!?"']/g, '').toLowerCase();
+                    const isAccent = accentWordsSet.has(cleanWord);
+                    
+                    ctx.fillStyle = isAccent ? accentColor : fontColor;
+                    
+                    if (textOutline.enabled && textOutline.width > 0) {
+                        ctx.strokeStyle = textOutline.color;
+                        ctx.lineWidth = textOutline.width;
+                        ctx.strokeText(word, currentXForText, currentY);
+                    }
+                    ctx.fillText(word, currentXForText, currentY);
+                    
+                    currentXForText += ctx.measureText(word).width + spaceWidth;
+                }
+
+                currentY += lineHeight;
+            }
+            
+            ctx.textAlign = originalTextAlign; // Restore original setting
+        }
+        
+        function updateActiveButton(group, activeBtn) {
+            group.querySelectorAll('.control-btn').forEach(btn => btn.classList.remove('active'));
+            activeBtn.classList.add('active');
+        }
+        
+        function updateLayoutControls(currentLayout) {
+            const isStandard = currentLayout === 'standard';
+            [
+                imageAlignGroup.parentElement,
+                imageShapeGroup.parentElement,
+                radiusControl,
+                imageSpacingControl,
+                imageWidthSlider.parentElement.parentElement
+            ].forEach(el => {
+                // We use display none to collapse the space
+                el.style.display = isStandard ? 'block' : 'none';
+                if(el.parentElement.classList.contains('grid-cols-2')) {
+                    el.style.display = isStandard ? 'grid' : 'none';
+                }
+            });
+        }
+        
+        function setupEventListeners() {
+            imageUpload.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    fileNameLabel.textContent = file.name;
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        userImage = new Image();
+                        userImage.onload = () => { drawCanvas(); downloadBtn.disabled = false; };
+                        userImage.src = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                     fileNameLabel.textContent = 'no file chosen';
+                     userImage = null; drawCanvas(); downloadBtn.disabled = true;
+                }
+            });
+    
+            quoteText.addEventListener('input', (e) => { text = e.target.value || '"in love, just like prayer you do not look around!"'; drawCanvas(); });
+            bgColorPicker.addEventListener('input', (e) => { backgroundColor = e.target.value; drawCanvas(); });
+            fontFamilySelect.addEventListener('change', (e) => { fontFamily = e.target.value; drawCanvas(); });
+            fontColorPicker.addEventListener('input', (e) => { fontColor = e.target.value; drawCanvas(); });
+            fontSizeInput.addEventListener('input', (e) => { fontSize = parseInt(e.target.value, 10) || 50; drawCanvas(); });
+            textSpacingSlider.addEventListener('input', (e) => { textSpacing = parseInt(e.target.value, 10); drawCanvas(); });
+            lineSpacingSlider.addEventListener('input', (e) => { lineSpacing = parseFloat(e.target.value); drawCanvas(); });
+            cornerRadiusSlider.addEventListener('input', (e) => { cornerRadius = parseInt(e.target.value, 10); drawCanvas(); });
+            imageSpacingSlider.addEventListener('input', (e) => { imageSpacing = parseInt(e.target.value, 10); drawCanvas(); });
+            imageWidthSlider.addEventListener('input', (e) => { imageWidthPercent = parseInt(e.target.value, 10); drawCanvas(); });
+            imageHeightSlider.addEventListener('input', (e) => { imageHeightPercent = parseInt(e.target.value, 10); drawCanvas(); });
+            imageBlurSlider.addEventListener('input', (e) => { imageBlur = parseInt(e.target.value, 10); drawCanvas(); });
+            imageFilterSelect.addEventListener('change', (e) => { imageFilter = e.target.value; drawCanvas(); });
+            cropZoomSlider.addEventListener('input', (e) => { cropZoom = parseFloat(e.target.value); drawCanvas(); });
+            cropXSlider.addEventListener('input', (e) => { cropX = parseInt(e.target.value, 10); drawCanvas(); });
+            cropYSlider.addEventListener('input', (e) => { cropY = parseInt(e.target.value, 10); drawCanvas(); });
+            
+            textOutlineEnable.addEventListener('change', (e) => {
+                textOutline.enabled = e.target.checked;
+                textOutlineControls.classList.toggle('hidden', !textOutline.enabled);
+                drawCanvas();
+            });
+            textOutlineColor.addEventListener('input', (e) => { textOutline.color = e.target.value; drawCanvas(); });
+            textOutlineWidth.addEventListener('input', (e) => { textOutline.width = parseInt(e.target.value, 10) || 2; drawCanvas(); });
+    
+            accentColorPicker.addEventListener('input', (e) => { accentColor = e.target.value; drawCanvas(); });
+            accentWordsInput.addEventListener('input', (e) => { accentWords = e.target.value.split(',').map(word => word.trim()).filter(Boolean); drawCanvas(); });
+            highlightColorPicker.addEventListener('input', (e) => { highlightColor = e.target.value; drawCanvas(); });
+            highlightWordsInput.addEventListener('input', (e) => { highlightWords = e.target.value.split(',').map(word => word.trim()).filter(Boolean); drawCanvas(); });
+
+            const handleCustomSizeChange = () => {
+                const customBtn = document.getElementById('custom-size-btn');
+                updateActiveButton(canvasSizeGroup, customBtn);
+                const width = customWidthInput.value;
+                const height = customHeightInput.value;
+                if (width && height && width >= 100 && height >= 100) {
+                    updateCanvasSize(width, height);
+                }
+            };
+            customWidthInput.addEventListener('input', handleCustomSizeChange);
+            customHeightInput.addEventListener('input', handleCustomSizeChange);
+
+            canvasSizeGroup.addEventListener('click', (e) => { 
+                const btn = e.target.closest('button'); 
+                if (btn) { 
+                    updateActiveButton(canvasSizeGroup, btn); 
+                    if (!btn.dataset.isCustom) {
+                        const width = btn.dataset.width;
+                        const height = btn.dataset.height;
+                        customWidthInput.value = width;
+                        customHeightInput.value = height;
+                        updateCanvasSize(width, height); 
+                    }
+                }
+            });
+            layoutTemplateGroup.addEventListener('click', (e) => { const btn = e.target.closest('button'); if (btn) { layout = btn.dataset.layout; updateActiveButton(layoutTemplateGroup, btn); updateLayoutControls(layout); drawCanvas(); }});
+            textAlignGroup.addEventListener('click', (e) => { const btn = e.target.closest('button'); if (btn) { textAlign = btn.dataset.align; updateActiveButton(textAlignGroup, btn); drawCanvas(); }});
+            imageAlignGroup.addEventListener('click', (e) => { const btn = e.target.closest('button'); if (btn) { imageAlign = btn.dataset.align; updateActiveButton(imageAlignGroup, btn); drawCanvas(); }});
+            imageShapeGroup.addEventListener('click', (e) => { const btn = e.target.closest('button'); if (btn) { imageShape = btn.dataset.shape; updateActiveButton(imageShapeGroup, btn); radiusControl.style.display = imageShape === 'circle' ? 'none' : 'block'; imageHeightSlider.disabled = (imageShape === 'square' || imageShape === 'circle'); drawCanvas(); }});
+            cropModeGroup.addEventListener('click', (e) => { const btn = e.target.closest('button'); if (btn) { cropMode = btn.dataset.mode; updateActiveButton(cropModeGroup, btn); manualCropControls.classList.toggle('hidden', cropMode === 'auto'); drawCanvas(); }});
+    
+            downloadBtn.addEventListener('click', () => {
+                if (!userImage && layout === 'standard') {
+                    const originalText = downloadBtn.innerText;
+                    downloadBtn.innerText = "please upload an image first!";
+                    setTimeout(() => downloadBtn.innerText = originalText, 2000);
+                    return;
+                };
+                
+                const generateFilename = () => `rajnish${'abcdefghijklmnopqrstuvwxyz'.charAt(Math.floor(Math.random() * 26))}${'abcdefghijklmnopqrstuvwxyz'.charAt(Math.floor(Math.random() * 26))}${Math.floor(100000000 + Math.random() * 900000000)}.png`;
+                const link = document.createElement('a');
+                link.download = generateFilename();
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
+        // initial setup
+        window.onload = () => {
+            document.fonts.ready.then(() => {
+                loader.style.display = 'none';
+                quoteText.value = text;
+                downloadBtn.disabled = true;
+                setupEventListeners();
+                updateLayoutControls(layout);
+                updateCanvasSize(1080, 1080);
+            });
+        };
+    </script>
+</body>
+</html>
+
+
